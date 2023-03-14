@@ -5,8 +5,13 @@ import { BsFillPatchCheckFill } from "react-icons/bs";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
-import { ADDED, DELETED, UPDATED } from "../../redux/ReducerActions";
-import { DELETE } from "../../redux/type";
+import {
+  ADDED,
+  DELETED,
+  UPDATED,
+  COPMLETED,
+  filter,
+} from "../../redux/ReducerActions";
 
 const ADDtodo = () => {
   const tasks = useSelector((state) => state.TasksReducer);
@@ -20,13 +25,16 @@ const ADDtodo = () => {
     SetNewTask("");
   };
   const [toggleUpdate, SetToggleUpdate] = useState(true);
+  const [id, setID] = useState("");
 
-  const ClickUpdate = (id) => {
+  const handleId = (id) => {
+    setID(id);
+  };
+
+  /*   const ClickUpdate = (id) => {
     dispatch(UPDATED(id, updatedTask));
     SetToggleUpdate(true);
-  };
-  
-
+  }; */
   return (
     <div className="add-todo">
       <div className="bg-holder">
@@ -61,13 +69,19 @@ const ADDtodo = () => {
               className="task-input"
               value={toggleUpdate ? newTask : updatedTask}
               onChange={(e) => {
-                toggleUpdate ? SetNewTask(e.target.value) : SetUpdatedTask(e.target.value);
+                toggleUpdate
+                  ? SetNewTask(e.target.value)
+                  : SetUpdatedTask(e.target.value);
               }}
             ></input>
             <button
               type="submit"
               className="button-add"
-              onClick={() => ClickUpdate()}
+              onClick={() => {
+                dispatch(UPDATED(id, updatedTask));
+                SetToggleUpdate(true);
+                SetNewTask("");
+              }}
             >
               <b>update</b>
             </button>
@@ -78,18 +92,19 @@ const ADDtodo = () => {
         <ul className="list">
           {tasks.map((task) => (
             <>
-              <li>
+              <li className={`todo-item ${task.done ? "completed" : ""}`}>
                 <p>{task.title}</p>
                 <div className="icons">
                   <BsFillPatchCheckFill
                     size={20}
-                    onClick={() => dispatch(DELETED(task.id))}
+                    onClick={() => dispatch(COPMLETED(task.id))}
                   />
                   <FaEdit
                     size={20}
                     onClick={() => {
                       SetToggleUpdate(false);
                       SetUpdatedTask(task.title);
+                      handleId(task.id);
                     }}
                   />
                   <MdDelete
@@ -101,6 +116,10 @@ const ADDtodo = () => {
             </>
           ))}
         </ul>
+      </div>
+      <div className="donee" > 
+        <button onClick={() => dispatch(filter("done"))}>Done</button>
+        <button onClick={() => dispatch(filter("notDone"))}>Not Done</button>
       </div>
     </div>
   );
